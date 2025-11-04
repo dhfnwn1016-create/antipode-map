@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🌏 지구 반대편 좌표 계산기</title>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f7f6;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      margin: 0;
+      padding: 40px;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      max-width: 500px;
+      width: 100%;
+    }
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 25px;
+    }
+    #findLocationButton {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 1.1em;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.1s;
+      box-shadow: 0 4px #2980b9;
+      margin-bottom: 30px;
+    }
+    #findLocationButton:hover {
+      background-color: #2980b9;
+    }
+    #findLocationButton:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px #2980b9;
+    }
+    #result p {
+      font-size: 1.1em;
+      line-height: 1.6;
+      color: #34495e;
+    }
+    #currentLocation, #antipodeLocation {
+      border-radius: 6px;
+      padding: 15px;
+      margin: 15px 0;
+    }
+    #currentLocation {
+      background-color: #e8f8f5;
+      border-left: 5px solid #1abc9c;
+    }
+    #antipodeLocation {
+      background-color: #f8f9fa;
+      border-left: 5px solid #e74c3c;
+      font-weight: bold;
+    }
+    a.map-link {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 8px 12px;
+      background-color: #3498db;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 0.95em;
+      transition: background-color 0.3s;
+    }
+    a.map-link:hover {
+      background-color: #2980b9;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌏 지구 반대편 좌표 계산기</h1>
+    <button id="findLocationButton">✅ 현재 위치로 계산하기</button>
+
+    <div id="result">
+      <p>버튼을 누르면 현재 위치와 대척점 좌표가 표시됩니다.</p>
+      <div id="currentLocation"></div>
+      <div id="antipodeLocation"></div>
+    </div>
+  </div>
+
+  <script>
+    // 대척점 계산
+    function calculateAntipode(lat, lon) {
+      const antipodeLat = -lat;
+      let antipodeLon = lon + 180;
+      if (antipodeLon > 180) antipodeLon -= 360;
+      return { lat: antipodeLat, lon: antipodeLon };
+    }
+
+    // 결과 표시
+    function displayResults(cLat, cLon, aLat, aLon) {
+      const currentMapUrl = `https://www.google.com/maps?q=${cLat},${cLon}`;
+      const antipodeMapUrl = `https://www.google.com/maps?q=${aLat},${aLon}`;
+
+      document.getElementById("currentLocation").innerHTML = `
+        <p>📍 <b>현재 위치:</b></p>
+        <p>위도: ${cLat.toFixed(4)}°, 경도: ${cLon.toFixed(4)}°</p>
+        <a href="${currentMapUrl}" target="_blank" class="map-link">Google 지도에서 보기</a>
+      `;
+
+      document.getElementById("antipodeLocation").innerHTML = `
+        <p>🎯 <b>지구 반대편 (대척점):</b></p>
+        <p>위도: ${aLat.toFixed(4)}°, 경도: ${aLon.toFixed(4)}°</p>
+        <a href="${antipodeMapUrl}" target="_blank" class="map-link">Google 지도에서 보기</a>
+      `;
+    }
+
+    // 위치 접근 성공
+    function showPosition(position) {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+      const antipode = calculateAntipode(lat, lon);
+      displayResults(lat, lon, antipode.lat, antipode.lon);
+    }
+
+    // 오류 처리
+    function showError(error) {
+      const messages = {
+        1: "❌ 위치 접근이 거부되었습니다.",
+        2: "❌ 위치 정보를 사용할 수 없습니다.",
+        3: "❌ 요청 시간이 초과되었습니다.",
+        default: "❌ 알 수 없는 오류가 발생했습니다.",
+      };
+      document.getElementById("result").innerHTML = `<p style="color:red">${messages[error.code] || messages.default}</p>`;
+    }
+
+    // 버튼 이벤트
+    document.getElementById("findLocationButton").addEventListener("click", () => {
+      if (navigator.geolocation) {
+        document.getElementById("result").innerHTML = `<p style="color:#3498db">위치 정보를 가져오는 중...</p>`;
+        navigator.geolocation.getCurrentPosition(showPosition, showError, {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0,
+        });
+      } else {
+        alert("이 브라우저는 위치 기능을 지원하지 않습니다.");
+      }
+    });
+  </script>
+</body>
+</html>
