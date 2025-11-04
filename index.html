@@ -1,121 +1,133 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🌏 지구 반대편 좌표 계산기</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f4f7f6;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 40px;
-    }
-    .container {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      max-width: 500px;
-      width: 100%;
-    }
-    h1 {
-      color: #2c3e50;
-      margin-bottom: 25px;
-    }
-    #findLocationButton {
-      background-color: #3498db;
-      color: white;
-      border: none;
-      padding: 15px 30px;
-      font-size: 1.1em;
-      font-weight: bold;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s, transform 0.1s;
-      box-shadow: 0 4px #2980b9;
-      margin-bottom: 20px;
-    }
-    #findLocationButton:hover {
-      background-color: #2980b9;
-    }
-    #findLocationButton:active {
-      transform: translateY(2px);
-      box-shadow: 0 2px #2980b9;
-    }
-    #status {
-      color: #34495e;
-      font-size: 1.05em;
-      margin-bottom: 15px;
-    }
-    #currentLocation, #antipodeLocation {
-      border-radius: 6px;
-      padding: 15px;
-      margin: 15px 0;
-      font-size: 1.05em;
-    }
-    #currentLocation {
-      background-color: #e8f8f5;
-      border-left: 5px solid #1abc9c;
-    }
-    #antipodeLocation {
-      background-color: #f8f9fa;
-      border-left: 5px solid #e74c3c;
-    }
-    a.map-link {
-      display: inline-block;
-      margin-top: 8px;
-      padding: 8px 12px;
-      background-color: #3498db;
-      color: white;
-      text-decoration: none;
-      border-radius: 6px;
-      font-size: 0.95em;
-      transition: background-color 0.3s;
-    }
-    a.map-link:hover {
-      background-color: #2980b9;
-    }
-    .lang-select {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-    }
-    .lang-button {
-  padding: 12px 25px;
-  font-size: 1.1em;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.3s;
-  color: white;
-  font-weight: bold;
-  box-shadow: 0 4px rgba(0,0,0,0.2);
-  width: 180px; /* 👈 이 줄 추가 */
-}
-    .ko-btn { background-color: #27ae60; }
-    .ko-btn:hover { background-color: #1e8449; }
-    .en-btn { background-color: #2980b9; }
-    .en-btn:hover { background-color: #21618c; }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🌏 지구 반대편 좌표 계산기</title>
+
+    <script src="https://unpkg.com/three"></script>
+    <script src="https://unpkg.com/globe.gl"></script>
+
+    <style>
+        /* CSS는 변경사항 없습니다. */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 40px;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 600px; 
+            width: 100%;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+        }
+        #findLocationButton {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 4px #2980b9;
+            margin-bottom: 20px;
+        }
+        #findLocationButton:hover {
+            background-color: #2980b9;
+        }
+        #findLocationButton:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px #2980b9;
+        }
+        #status {
+            color: #34495e;
+            font-size: 1.05em;
+            margin-bottom: 15px;
+        }
+        #currentLocation, #antipodeLocation {
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 1.05em;
+        }
+        #currentLocation {
+            background-color: #e8f8f5;
+            border-left: 5px solid #1abc9c;
+        }
+        #antipodeLocation {
+            background-color: #f8f9fa;
+            border-left: 5px solid #e74c3c;
+        }
+        #globeViz {
+            width: 100%;
+            height: 400px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            margin-top: 20px;
+            background-color: #00002a; 
+        }
+        .lang-select {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+        .lang-button {
+            padding: 12px 25px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px rgba(0,0,0,0.2);
+            width: 180px;
+        }
+        .ko-btn { background-color: #27ae60; }
+        .ko-btn:hover { background-color: #1e8449; }
+        .en-btn { background-color: #2980b9; }
+        .en-btn:hover { background-color: #21618c; }
+
+        /* [추가됨] 구글맵 링크 스타일 */
+        .gmaps-link {
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #2980b9;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .gmaps-link:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
 <button id="langReset" style="position:absolute; top:20px; right:20px; background:none; border:none; font-size:2.5em; cursor:pointer;">🌐</button>
   <div class="container" id="langContainer">
-  <h1>🌏 지구 반대편 좌표 계산기</h1>
-  <p style="color:#555; margin-top:-10px; margin-bottom:20px; font-size:0.95em;">Language / 언어 선택</p>
-  <div class="lang-select">
-    <button class="lang-button ko-btn" onclick="setLanguage('ko')">한국어 🇰🇷</button>
-    <button class="lang-button en-btn" onclick="setLanguage('en')">English 🇺🇸</button>
+    <h1>🌏 지구 반대편 좌표 계산기</h1>
+    <p style="color:#555; margin-top:-10px; margin-bottom:20px; font-size:0.95em;">Language / 언어 선택</p>
+    <div class="lang-select">
+      <button class="lang-button ko-btn" onclick="setLanguage('ko')">한국어 🇰🇷</button>
+      <button class="lang-button en-btn" onclick="setLanguage('en')">English 🇺🇸</button>
+    </div>
   </div>
-</div>
 
   <div class="container" id="mainContainer" style="display:none;">
     <h1 id="titleText"></h1>
@@ -123,9 +135,12 @@
     <p id="status"></p>
     <div id="currentLocation"></div>
     <div id="antipodeLocation"></div>
+    
+    <div id="globeViz"></div>
   </div>
 
   <script>
+    // [수정됨] 텍스트 객체에 구글맵 링크 추가
     const text = {
       ko: {
         title: "🌏 지구 반대편 좌표 계산기",
@@ -137,16 +152,16 @@
         antipode: "🎯 <b>지구 반대편</b>",
         lat: "위도",
         lon: "경도",
+        gmapsLink: "🗺️ Google Maps에서 보기", // 추가
         error: {
           1: "❌ 위치 접근이 거부되었습니다.",
           2: "❌ 위치 정보를 사용할 수 없습니다.",
           3: "❌ 요청 시간이 초과되었습니다.",
           default: "❌ 알 수 없는 오류가 발생했습니다."
-        },
-        map: "Google 지도에서 보기"
+        }
       },
       en: {
-        title: "🌏 Antipode Coordinate Calculator",
+        title: "🌏 3D Antipode Coordinate Calculator",
         button: "✅ Calculate using my location",
         waiting: "Press the button to show your location and antipode coordinates.",
         loading: "📡 Getting location information...",
@@ -155,15 +170,18 @@
         antipode: "🎯 <b>Antipode</b>",
         lat: "Latitude",
         lon: "Longitude",
+        gmapsLink: "🗺️ View on Google Maps", // 추가
         error: {
           1: "❌ Location access denied.",
           2: "❌ Location unavailable.",
           3: "❌ Request timed out.",
           default: "❌ Unknown error occurred."
-        },
-        map: "View on Google Maps"
+        }
       }
     };
+    
+    let myGlobe = null;
+    let globeAnimationTimeout = null; 
 
     function setLanguage(lang) {
       localStorage.setItem("lang", lang);
@@ -192,6 +210,8 @@
           document.getElementById("status").textContent = "❌ Geolocation not supported.";
         }
       };
+      
+      initGlobe();
     }
 
     function calculateAntipode(lat, lon) {
@@ -201,21 +221,74 @@
       return { lat: antipodeLat, lon: antipodeLon };
     }
 
+    // [수정됨] displayResults 함수에 구글맵 링크 생성 로직 추가
     function displayResults(cLat, cLon, aLat, aLon, t) {
       document.getElementById("status").textContent = t.done;
-      const currentMapUrl = `https://www.google.com/maps?q=${cLat},${cLon}`;
-      const antipodeMapUrl = `https://www.google.com/maps?q=${aLat},${aLon}`;
+
+      // 구글맵 URL 생성
+      const currentGmapsUrl = `https://www.google.com/maps?q=${cLat},${cLon}`;
+      const antipodeGmapsUrl = `https://www.google.com/maps?q=${aLat},${aLon}`;
 
       document.getElementById("currentLocation").innerHTML = `
         <p>${t.current}</p>
         <p>${t.lat}: ${cLat.toFixed(4)}°, ${t.lon}: ${cLon.toFixed(4)}°</p>
-        <a href="${currentMapUrl}" target="_blank" class="map-link">${t.map}</a>
+        <a href="${currentGmapsUrl}" target="_blank" class="gmaps-link">${t.gmapsLink}</a>
       `;
       document.getElementById("antipodeLocation").innerHTML = `
         <p>${t.antipode}</p>
         <p>${t.lat}: ${aLat.toFixed(4)}°, ${t.lon}: ${aLon.toFixed(4)}°</p>
-        <a href="${antipodeMapUrl}" target="_blank" class="map-link">${t.map}</a>
+        <a href="${antipodeGmapsUrl}" target="_blank" class="gmaps-link">${t.gmapsLink}</a>
       `;
+      
+      updateGlobe(cLat, cLon, aLat, aLon);
+    }
+    
+    function initGlobe() {
+        const globeEl = document.getElementById('globeViz');
+        const width = globeEl.clientWidth;
+        const height = globeEl.clientHeight;
+
+        myGlobe = Globe()
+          (globeEl)
+          .width(width)
+          .height(height)
+          .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg') 
+          .backgroundColor('rgba(0,0,0,0)');
+    }
+    
+    function updateGlobe(cLat, cLon, aLat, aLon) {
+        const locations = [
+            { lat: cLat, lng: cLon, name: '현재 위치', color: '#1abc9c' },
+            { lat: aLat, lng: aLon, name: '지구 반대편', color: '#e74c3c' }
+        ];
+
+        myGlobe
+            .pointsData(locations)
+            .pointLabel('name')
+            .pointLat('lat')
+            .pointLng('lng')
+            .pointRadius(0.5)
+            .pointColor('color')
+            
+            .pathsData([
+                {
+                    path: [ [cLat, cLon], [aLat, aLon] ],
+                    color: '#FFA500' 
+                }
+            ])
+            .pathPoints('path') 
+            .pathColor(d => d.color) 
+            .pathStroke(0.5) 
+            ;
+
+        if (globeAnimationTimeout) {
+            clearTimeout(globeAnimationTimeout);
+        }
+        myGlobe.pointOfView({ lat: cLat, lng: cLon, altitude: 2.5 }, 1500);
+        globeAnimationTimeout = setTimeout(() => {
+            myGlobe.pointOfView({ lat: aLat, lng: aLon, altitude: 2.5 }, 1500);
+            globeAnimationTimeout = null;
+        }, 2000);
     }
 
     function showPosition(position, t) {
@@ -230,15 +303,14 @@
       document.getElementById("status").textContent = msg;
     }
 
-   window.onload = () => {
-  // 언어 저장 무시하고 항상 선택 화면 표시
-  document.getElementById("langContainer").style.display = "block";
-  document.getElementById("mainContainer").style.display = "none";
-};
-document.getElementById("langReset").onclick = () => {
-  localStorage.removeItem("lang");
-  location.reload();
-};
+    window.onload = () => {
+        document.getElementById("langContainer").style.display = "block";
+        document.getElementById("mainContainer").style.display = "none";
+    };
+    document.getElementById("langReset").onclick = () => {
+        localStorage.removeItem("lang");
+        location.reload();
+    };
   </script>
 </body>
 </html>
