@@ -89,7 +89,7 @@
   <div class="container">
     <h1>🌏 지구 반대편 좌표 계산기</h1>
     <button id="findLocationButton">✅ 현재 위치로 계산하기</button>
-    <p id="status">버튼을 누르면 현재 위치와 대척점 좌표가 표시됩니다.</p>
+    <p id="status">버튼을 누르면 현재 좌표와 지구 반대편 좌표가 표시됩니다.</p>
 
     <div id="currentLocation"></div>
     <div id="antipodeLocation"></div>
@@ -118,7 +118,7 @@
       `;
 
       document.getElementById("antipodeLocation").innerHTML = `
-        <p>🎯 <b>지구 반대편 (대척점):</b></p>
+        <p>🎯 <b>지구 반대편:</b></p>
         <p>위도: ${aLat.toFixed(4)}°, 경도: ${aLon.toFixed(4)}°</p>
         <a href="${antipodeMapUrl}" target="_blank" class="map-link">Google 지도에서 보기</a>
       `;
