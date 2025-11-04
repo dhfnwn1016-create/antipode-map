@@ -112,13 +112,13 @@
       const antipodeMapUrl = `https://www.google.com/maps?q=${aLat},${aLon}`;
 
       document.getElementById("currentLocation").innerHTML = `
-        <p>📍 <b>현재 위치:</b></p>
+        <p>📍 <b>현재 위치</b></p>
         <p>위도: ${cLat.toFixed(4)}°, 경도: ${cLon.toFixed(4)}°</p>
         <a href="${currentMapUrl}" target="_blank" class="map-link">Google 지도에서 보기</a>
       `;
 
       document.getElementById("antipodeLocation").innerHTML = `
-        <p>🎯 <b>지구 반대편:</b></p>
+        <p>🎯 <b>지구 반대편</b></p>
         <p>위도: ${aLat.toFixed(4)}°, 경도: ${aLon.toFixed(4)}°</p>
         <a href="${antipodeMapUrl}" target="_blank" class="map-link">Google 지도에서 보기</a>
       `;
