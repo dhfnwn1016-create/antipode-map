@@ -4,14 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🌏 지구 반대편 좌표 계산기</title>
-
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #f4f7f6;
       display: flex;
       justify-content: center;
-      align-items: flex-start;
+      align-items: center;
       min-height: 100vh;
       margin: 0;
       padding: 40px;
@@ -82,20 +81,117 @@
     a.map-link:hover {
       background-color: #2980b9;
     }
+    .lang-select {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+    .lang-button {
+      padding: 12px 25px;
+      font-size: 1.1em;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 4px rgba(0,0,0,0.2);
+    }
+    .ko-btn { background-color: #27ae60; }
+    .ko-btn:hover { background-color: #1e8449; }
+    .en-btn { background-color: #2980b9; }
+    .en-btn:hover { background-color: #21618c; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🌏 지구 반대편 좌표 계산기</h1>
-    <button id="findLocationButton">✅ 현재 위치로 계산하기</button>
-    <p id="status">버튼을 누르면 현재 좌표와 지구 반대편 좌표가 표시됩니다.</p>
+<button id="langReset" style="position:absolute; top:20px; right:20px; background:none; border:none; font-size:2.5em; cursor:pointer;">🌐</button>
+  <div class="container" id="langContainer">
+    <h1>🌏 Language / 언어 선택</h1>
+    <div class="lang-select">
+      <button class="lang-button ko-btn" onclick="setLanguage('ko')">한국어 🇰🇷</button>
+      <button class="lang-button en-btn" onclick="setLanguage('en')">English 🇺🇸</button>
+    </div>
+  </div>
 
+  <div class="container" id="mainContainer" style="display:none;">
+    <h1 id="titleText"></h1>
+    <button id="findLocationButton"></button>
+    <p id="status"></p>
     <div id="currentLocation"></div>
     <div id="antipodeLocation"></div>
   </div>
 
   <script>
-    // 대척점 계산
+    const text = {
+      ko: {
+        title: "🌏 지구 반대편 좌표 계산기",
+        button: "✅ 현재 위치로 계산하기",
+        waiting: "버튼을 누르면 현재 좌표와 지구 반대편 좌표가 표시됩니다.",
+        loading: "📡 위치 정보를 가져오는 중...",
+        done: "✅ 위치 계산 완료",
+        current: "📍 <b>현재 위치</b>",
+        antipode: "🎯 <b>지구 반대편</b>",
+        lat: "위도",
+        lon: "경도",
+        error: {
+          1: "❌ 위치 접근이 거부되었습니다.",
+          2: "❌ 위치 정보를 사용할 수 없습니다.",
+          3: "❌ 요청 시간이 초과되었습니다.",
+          default: "❌ 알 수 없는 오류가 발생했습니다."
+        },
+        map: "Google 지도에서 보기"
+      },
+      en: {
+        title: "🌏 Antipode Coordinate Calculator",
+        button: "✅ Calculate using my location",
+        waiting: "Press the button to show your location and antipode coordinates.",
+        loading: "📡 Getting location information...",
+        done: "✅ Location retrieved successfully",
+        current: "📍 <b>Your Location</b>",
+        antipode: "🎯 <b>Antipode</b>",
+        lat: "Latitude",
+        lon: "Longitude",
+        error: {
+          1: "❌ Location access denied.",
+          2: "❌ Location unavailable.",
+          3: "❌ Request timed out.",
+          default: "❌ Unknown error occurred."
+        },
+        map: "View on Google Maps"
+      }
+    };
+
+    function setLanguage(lang) {
+      localStorage.setItem("lang", lang);
+      document.getElementById("langContainer").style.display = "none";
+      document.getElementById("mainContainer").style.display = "block";
+      initUI();
+    }
+
+    function initUI() {
+      const lang = localStorage.getItem("lang") || "ko";
+      const t = text[lang];
+      document.getElementById("titleText").innerHTML = t.title;
+      document.getElementById("findLocationButton").textContent = t.button;
+      document.getElementById("status").textContent = t.waiting;
+
+      const btn = document.getElementById("findLocationButton");
+      btn.onclick = () => {
+        document.getElementById("status").textContent = t.loading;
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => showPosition(pos, t),
+            (err) => showError(err, t),
+            { enableHighAccuracy: true, timeout: 7000, maximumAge: 0 }
+          );
+        } else {
+          document.getElementById("status").textContent = "❌ Geolocation not supported.";
+        }
+      };
+    }
+
     function calculateAntipode(lat, lon) {
       const antipodeLat = -lat;
       let antipodeLon = lon + 180;
@@ -103,60 +199,44 @@
       return { lat: antipodeLat, lon: antipodeLon };
     }
 
-    // 결과 표시
-    function displayResults(cLat, cLon, aLat, aLon) {
-      document.getElementById("status").textContent = "✅ 위치 계산 완료";
-
+    function displayResults(cLat, cLon, aLat, aLon, t) {
+      document.getElementById("status").textContent = t.done;
       const currentMapUrl = `https://www.google.com/maps?q=${cLat},${cLon}`;
       const antipodeMapUrl = `https://www.google.com/maps?q=${aLat},${aLon}`;
 
       document.getElementById("currentLocation").innerHTML = `
-        <p>📍 <b>현재 위치</b></p>
-        <p>위도: ${cLat.toFixed(4)}°, 경도: ${cLon.toFixed(4)}°</p>
-        <a href="${currentMapUrl}" target="_blank" class="map-link">Google 지도에서 보기</a>
+        <p>${t.current}</p>
+        <p>${t.lat}: ${cLat.toFixed(4)}°, ${t.lon}: ${cLon.toFixed(4)}°</p>
+        <a href="${currentMapUrl}" target="_blank" class="map-link">${t.map}</a>
       `;
-
       document.getElementById("antipodeLocation").innerHTML = `
-        <p>🎯 <b>지구 반대편</b></p>
-        <p>위도: ${aLat.toFixed(4)}°, 경도: ${aLon.toFixed(4)}°</p>
-        <a href="${antipodeMapUrl}" target="_blank" class="map-link">Google 지도에서 보기</a>
+        <p>${t.antipode}</p>
+        <p>${t.lat}: ${aLat.toFixed(4)}°, ${t.lon}: ${aLon.toFixed(4)}°</p>
+        <a href="${antipodeMapUrl}" target="_blank" class="map-link">${t.map}</a>
       `;
     }
 
-    // 위치 성공 콜백
-    function showPosition(position) {
+    function showPosition(position, t) {
       const lat = position.coords.latitude;
       const lon = position.coords.longitude;
       const antipode = calculateAntipode(lat, lon);
-      displayResults(lat, lon, antipode.lat, antipode.lon);
+      displayResults(lat, lon, antipode.lat, antipode.lon, t);
     }
 
-    // 오류 처리
-    function showError(error) {
-      const messages = {
-        1: "❌ 위치 접근이 거부되었습니다.",
-        2: "❌ 위치 정보를 사용할 수 없습니다.",
-        3: "❌ 요청 시간이 초과되었습니다.",
-        default: "❌ 알 수 없는 오류가 발생했습니다.",
-      };
-      document.getElementById("status").textContent =
-        messages[error.code] || messages.default;
+    function showError(error, t) {
+      const msg = t.error[error.code] || t.error.default;
+      document.getElementById("status").textContent = msg;
     }
 
-    // 버튼 이벤트
-    document.getElementById("findLocationButton").addEventListener("click", () => {
-      document.getElementById("status").textContent = "📡 위치 정보를 가져오는 중...";
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showPosition, showError, {
-          enableHighAccuracy: true,
-          timeout: 7000,
-          maximumAge: 0,
-        });
-      } else {
-        document.getElementById("status").textContent =
-          "❌ 이 브라우저는 위치 기능을 지원하지 않습니다.";
-      }
-    });
+   window.onload = () => {
+  // 언어 저장 무시하고 항상 선택 화면 표시
+  document.getElementById("langContainer").style.display = "block";
+  document.getElementById("mainContainer").style.display = "none";
+};
+document.getElementById("langReset").onclick = () => {
+  localStorage.removeItem("lang");
+  location.reload();
+};
   </script>
 </body>
 </html>
