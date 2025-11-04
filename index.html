@@ -9,7 +9,6 @@
     <script src="https://unpkg.com/globe.gl"></script>
 
     <style>
-        /* CSS는 변경사항 없습니다. */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f7f6;
@@ -19,6 +18,7 @@
             min-height: 100vh;
             margin: 0;
             padding: 40px;
+            box-sizing: border-box; /* [추가] 패딩 계산 방식 통일 */
         }
         .container {
             background: white;
@@ -28,6 +28,7 @@
             text-align: center;
             max-width: 600px; 
             width: 100%;
+            box-sizing: border-box; /* [추가] 패딩 계산 방식 통일 */
         }
         h1 {
             color: #2c3e50;
@@ -104,7 +105,6 @@
         .en-btn { background-color: #2980b9; }
         .en-btn:hover { background-color: #21618c; }
 
-        /* [추가됨] 구글맵 링크 스타일 */
         .gmaps-link {
             display: inline-block;
             margin-top: 10px;
@@ -115,6 +115,51 @@
         }
         .gmaps-link:hover {
             text-decoration: underline;
+        }
+
+        /* [추가됨] 모바일 반응형 스타일 */
+        @media (max-width: 640px) {
+            body {
+                padding: 15px; /* body-padding 줄이기 */
+                min-height: 100vh; /* 최소 높이 유지 */
+            }
+            .container {
+                padding: 20px; /* container-padding 줄이기 */
+            }
+            h1 {
+                font-size: 1.8em; /* h1 폰트 크기 */
+                margin-bottom: 20px;
+            }
+            #findLocationButton {
+                padding: 12px 20px; /* 버튼 패딩 */
+                font-size: 1em; /* 버튼 폰트 */
+            }
+            #currentLocation, #antipodeLocation {
+                padding: 12px;
+                font-size: 1em; /* 폰트 크기 */
+                text-align: left; /* [수정] 텍스트 좌측 정렬 */
+            }
+            /* [수정] 좌표 표시 <p> 태그의 하단 마진 제거 */
+            #currentLocation p, #antipodeLocation p {
+                 margin-bottom: 0;
+            }
+            /* [수정] 구글맵 링크의 상단 마진 조정 */
+            .gmaps-link {
+                 margin-top: 8px;
+            }
+
+            #globeViz {
+                height: 300px; /* 지구본 높이 줄이기 */
+            }
+            .lang-button {
+                width: 160px; /* 언어 버튼 크기 */
+                font-size: 1em;
+            }
+            #langReset {
+                top: 10px;
+                right: 10px;
+                font-size: 2em;
+            }
         }
     </style>
 </head>
@@ -254,6 +299,14 @@
           .height(height)
           .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg') 
           .backgroundColor('rgba(0,0,0,0)');
+        
+        // [추가] 창 크기 변경 시 지구본 크기 재조정
+        window.addEventListener('resize', () => {
+            const el = document.getElementById('globeViz');
+            if (el) {
+                 myGlobe.width(el.clientWidth).height(el.clientHeight);
+            }
+        });
     }
     
     function updateGlobe(cLat, cLon, aLat, aLon) {
@@ -314,3 +367,4 @@
   </script>
 </body>
 </html>
+
